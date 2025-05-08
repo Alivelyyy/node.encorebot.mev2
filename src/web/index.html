@@ -674,37 +674,29 @@
         </div>
 
         <div class="card">
-            <h3><i class="fas fa-plug"></i> Connection Information</h3>
-            <div class="connection-grid">
-                <div class="connection-card">
-                    <h4>SSL Node (Recommended)</h4>
-                    <div class="code-block">
-                        <button class="copy-btn" onclick="copyConfig(this, 'ssl')">Copy</button>
-                        <code>{
-  "host": "lavalink.nextgencoders.xyz",
-  "port": 443,
-  "password": "nextgencoderspvt",
-  "secure": true
-}</code>
+                <h3><i class="fas fa-server"></i> System Information</h3>
+                <div class="metrics">
+                    <div class="metric">
+                        <span>Server Version</span>
+                        <span id="server-version">v2.0.0</span>
                     </div>
-                </div>
-                <div class="connection-card">
-                    <h4>Non-SSL Node</h4>
-                    <div class="code-block">
-                        <button class="copy-btn" onclick="copyConfig(this, 'non-ssl')">Copy</button>
-                        <code>{
-  "host": "lavalink.nextgencoders.xyz",
-  "port": 80,
-  "password": "nextgencoderspvt",
-  "secure": false
-}</code>
+                    <div class="metric">
+                        <span>Protocol</span>
+                        <span id="protocol-version">v4</span>
+                    </div>
+                    <div class="metric">
+                        <span>Region</span>
+                        <span id="server-region">EU-Central</span>
+                    </div>
+                    <div class="metric">
+                        <span>Framework</span>
+                        <span>Lavalink</span>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="card">
-            <h3><i class="fas fa-info-circle"></i> Features & Capabilities</h3>
+            <div class="card">
+                <h3><i class="fas fa-info-circle"></i> Features & Capabilities</h3>
             <div class="features-list">
                 <div class="feature-item">
                     <i class="fas fa-music"></i>
@@ -846,7 +838,7 @@
                 </div>
             `;
             statusHistory.insertBefore(entry, statusHistory.firstChild);
-            
+
             // Keep only last 50 entries
             if (statusHistory.children.length > 50) {
                 statusHistory.removeChild(statusHistory.lastChild);
@@ -855,7 +847,7 @@
 
         function updateChart(stats) {
             const timestamp = new Date().toLocaleTimeString();
-            
+
             // Update chart data
             chartData.labels.push(timestamp);
             chartData.systemLoad.push(parseFloat(stats[0].systemLoad));
@@ -878,16 +870,7 @@
             performanceChart.update();
         }
 
-        let previousStatus = {}; `
-                <span class="status-dot"></span>
-                <span class="status-text">${status}</span>
-                <span class="status-time">${new Date(timestamp).toLocaleTimeString()}</span>
-            `;
-            statusHistory.insertBefore(entry, statusHistory.firstChild);
-            if (statusHistory.children.length > 10) {
-                statusHistory.removeChild(statusHistory.lastChild);
-            }
-        }
+        let previousStatus = {}; 
         // Detect devtools on page load
         function detectDevTools() {
             const threshold = 160;
@@ -925,7 +908,7 @@
             let progress = 0;
 
             const interval = setInterval(() => {
-                progress += Math.random() * 10;
+                progress += Math.random() * 10; // Simulate progress - replace with actual progress data
                 if (progress > 100) progress = 100;
 
                 loadingProgress.style.width = `${progress}%`;
@@ -1003,7 +986,7 @@
         function updateNodeStats(prefix, stats) {
             const statusElement = document.getElementById(`${prefix}-status`);
             const newStatus = stats.status;
-            
+
             // Check if status changed
             if (previousStatus[prefix] !== newStatus) {
                 addStatusEntry(stats.node, newStatus, new Date());
@@ -1012,7 +995,7 @@
 
             statusElement.textContent = newStatus;
             statusElement.className = newStatus.toLowerCase();
-            
+
             document.getElementById(`${prefix}-players`).textContent = `${stats.activePlayers}/${stats.players}`;
             document.getElementById(`${prefix}-memory`).textContent = `${stats.memoryUsed}/${stats.memoryReservable}`;
             document.getElementById(`${prefix}-sysload`).textContent = `${stats.systemLoad}%`;
@@ -1030,7 +1013,7 @@
             try {
                 const response = await fetch('/stats');
                 const data = await response.json();
-                
+
                 if (data && Array.isArray(data) && data.length > 0) {
                     updateNodeStats('public', data[0]);
                     if (data.length > 1) {
