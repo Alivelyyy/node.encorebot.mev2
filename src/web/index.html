@@ -748,6 +748,13 @@
             themeIcon.classList.toggle('fa-sun');
         }
 
+        let chartData = {
+            labels: [],
+            systemLoad: [],
+            memoryUsage: [],
+            playerCount: []
+        };
+
         // Initialize performance chart
         const ctx = document.getElementById('performanceChart').getContext('2d');
         const performanceChart = new Chart(ctx, {
@@ -755,14 +762,19 @@
             data: {
                 labels: [],
                 datasets: [{
-                    label: 'System Load',
+                    label: 'System Load (%)',
                     data: [],
                     borderColor: '#4CAF50',
                     tension: 0.4
                 }, {
-                    label: 'Memory Usage',
+                    label: 'Memory Usage (GB)',
                     data: [],
                     borderColor: '#2196F3',
+                    tension: 0.4
+                }, {
+                    label: 'Active Players',
+                    data: [],
+                    borderColor: '#FFA726',
                     tension: 0.4
                 }]
             },
@@ -773,16 +785,60 @@
                     y: {
                         beginAtZero: true
                     }
+                },
+                animation: {
+                    duration: 750
                 }
             }
         });
 
         // Status history management
-        function addStatusEntry(status, timestamp) {
+        function addStatusEntry(node, status, timestamp) {
             const statusHistory = document.getElementById('statusHistory');
             const entry = document.createElement('div');
             entry.className = `status-entry ${status.toLowerCase()}`;
+            const time = new Date(timestamp).toLocaleTimeString();
             entry.innerHTML = `
+                <div class="status-time">${time}</div>
+                <div class="status-info">
+                    <span class="status-node">${node}</span>
+                    <span class="status-state ${status.toLowerCase()}">${status}</span>
+                </div>
+            `;
+            statusHistory.insertBefore(entry, statusHistory.firstChild);
+            
+            // Keep only last 50 entries
+            if (statusHistory.children.length > 50) {
+                statusHistory.removeChild(statusHistory.lastChild);
+            }
+        }
+
+        function updateChart(stats) {
+            const timestamp = new Date().toLocaleTimeString();
+            
+            // Update chart data
+            chartData.labels.push(timestamp);
+            chartData.systemLoad.push(parseFloat(stats[0].systemLoad));
+            chartData.memoryUsage.push(parseFloat(stats[0].memoryUsed.split(' ')[0]));
+            chartData.playerCount.push(stats[0].activePlayers);
+
+            // Keep only last 10 data points
+            if (chartData.labels.length > 10) {
+                chartData.labels.shift();
+                chartData.systemLoad.shift();
+                chartData.memoryUsage.shift();
+                chartData.playerCount.shift();
+            }
+
+            // Update chart
+            performanceChart.data.labels = chartData.labels;
+            performanceChart.data.datasets[0].data = chartData.systemLoad;
+            performanceChart.data.datasets[1].data = chartData.memoryUsage;
+            performanceChart.data.datasets[2].data = chartData.playerCount;
+            performanceChart.update();
+        }
+
+        let previousStatus = {}; `
                 <span class="status-dot"></span>
                 <span class="status-text">${status}</span>
                 <span class="status-time">${new Date(timestamp).toLocaleTimeString()}</span>
@@ -905,17 +961,51 @@
         }
 
         function updateNodeStats(prefix, stats) {
-            document.getElementById(`${prefix}-status`).textContent = stats.status;
+            const statusElement = document.getElementById(`${prefix}-status`);
+            const newStatus = stats.status;
+            
+            // Check if status changed
+            if (previousStatus[prefix] !== newStatus) {
+                addStatusEntry(stats.node, newStatus, new Date());
+                previousStatus[prefix] = newStatus;
+            }
+
+            statusElement.textContent = newStatus;
+            statusElement.className = newStatus.toLowerCase();
+            
             document.getElementById(`${prefix}-players`).textContent = `${stats.activePlayers}/${stats.players}`;
             document.getElementById(`${prefix}-memory`).textContent = `${stats.memoryUsed}/${stats.memoryReservable}`;
             document.getElementById(`${prefix}-sysload`).textContent = `${stats.systemLoad}%`;
             document.getElementById(`${prefix}-lavaload`).textContent = `${stats.lavalinkLoad}%`;
             document.getElementById(`${prefix}-uptime`).textContent = stats.uptime;
+
+            // Update overview stats
+            document.getElementById('total-players').textContent = stats.players;
+            document.getElementById('total-memory').textContent = stats.memoryReservable;
+            document.getElementById('avg-load').textContent = `${stats.systemLoad}%`;
+            document.getElementById('total-nodes').textContent = '2';
+        }
+
+        async function fetchStats() {
+            try {
+                const response = await fetch('/stats');
+                const data = await response.json();
+                
+                if (data && Array.isArray(data) && data.length > 0) {
+                    updateNodeStats('public', data[0]);
+                    if (data.length > 1) {
+                        updateNodeStats('pvt', data[1]);
+                    }
+                    updateChart(data);
+                }
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            }
         }
 
         // Initial fetch and setup interval
         fetchStats();
-        setInterval(fetchStats, 60000);
+        setInterval(fetchStats, 5000); // Update every 5 seconds for smoother charts
     </script>
 </body>
 </html>
