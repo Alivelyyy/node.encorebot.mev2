@@ -105,12 +105,17 @@ module.exports = async (client) => {
       const rembed = new EmbedBuilder()
         .setColor(resolveColor("#2F3136"))
         .setAuthor({
-          name: `Lavalink Monitor`,
+          name: `Encore Lavalink Monitor`,
           iconURL: client.user.displayAvatarURL({ forceStatic: false }),
         })
         .setDescription(`\`\`\`diff\n${data.join("\n\n")}\`\`\``)
+        .addFields([
+          { name: '🌐 Total Nodes', value: `${client.manager.nodesMap.size}`, inline: true },
+          { name: '🎵 Active Players', value: `${client.manager.nodesMap.reduce((acc, node) => acc + node.stats.playingPlayers, 0)}`, inline: true },
+          { name: '⚡ System Health', value: `${client.manager.nodesMap.every(node => node.connected) ? 'Optimal ✅' : 'Degraded ⚠️'}`, inline: true }
+        ])
         .setFooter({
-          text: "Last Update",
+          text: `Last Updated • System Monitoring Active`,
         })
         .setTimestamp(Date.now());
       statusembeds.push(rembed);
