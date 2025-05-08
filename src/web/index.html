@@ -11,10 +11,36 @@
             100% { transform: rotate(360deg); }
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            border: 4px solid transparent;
+            border-top-color: var(--primary);
+            border-right-color: var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .loading-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            background-size: 200% 200%;
+            animation: gradient 3s ease infinite;
         }
 
         #loading-screen {
@@ -496,12 +522,13 @@
 <body class="dark-theme">
     <div id="loading-screen">
         <div class="loading-content">
-            <img src="https://media.tenor.com/bQCHJZeB-JUAAAAC/amalie-steiness-borregaard-loading-gif-loading.gif" alt="Loading" class="loading-logo" style="animation: pulse 2s infinite;">
+            <div class="loading-spinner"></div>
+            <div class="loading-title">Encore</div>
             <div class="loading-bar">
                 <div class="loading-progress"></div>
             </div>
-            <div class="loading-text">Loading... <span id="loading-percentage">0</span>%</div>
-            <div class="loading-info">#Encore Management</div>
+            <div class="loading-text">Loading System... <span id="loading-percentage">0</span>%</div>
+            <div class="loading-info">Initializing Lavalink Monitor</div>
         </div>
     </div>
     <header class="header">
