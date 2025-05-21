@@ -111,8 +111,8 @@ module.exports = async (client) => {
         .setDescription(`\`\`\`diff\n${data.join("\n\n")}\`\`\``)
         .addFields([
           { name: '🌐 Total Nodes', value: `${client.manager.nodesMap.size}`, inline: true },
-          { name: '🎵 Active Players', value: `${client.manager.nodesMap.reduce((acc, node) => acc + node.stats.playingPlayers, 0)}`, inline: true },
-          { name: '⚡ System Health', value: `${client.manager.nodesMap.every(node => node.connected) ? 'Optimal ✅' : 'Degraded ⚠️'}`, inline: true }
+          { name: '🎵 Active Players', value: `${Array.from(client.manager.nodesMap.values()).reduce((acc, node) => acc + node.stats.playingPlayers, 0)}`, inline: true },
+          { name: '⚡ System Health', value: `${Array.from(client.manager.nodesMap.values()).every(node => node.connected) ? 'Optimal ✅' : 'Degraded ⚠️'}`, inline: true }
         ])
         .setFooter({
           text: `Last Updated • System Monitoring Active`,
