@@ -17,4 +17,4 @@ ENV PORT=3000
 EXPOSE 3000
 
 # Start the app (adjust if your start script is different)
-CMD ["npm i", "node src/server.js"]
+CMD ["npm", "start"]
